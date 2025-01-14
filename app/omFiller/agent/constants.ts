@@ -186,6 +186,7 @@ export const COLUMN_MAPPING_NAMES = {
 export const TITLE = "Générateur d'ordre de mission";
 
 export const NO_DATA_MESSAGES = {
-  NO_MAPPING: "Veuillez configurer les colonnes dans les paramètres du widget.",
+  NO_MAPPING:
+    "Toutes les colonnes doivent être mappées dans les paramètres du widget.",
   NO_RECORDS: "Veuillez sélectionner une ligne à traiter.",
 };

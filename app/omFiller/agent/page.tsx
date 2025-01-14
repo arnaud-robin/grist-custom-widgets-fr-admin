@@ -12,6 +12,8 @@ import { PdfPreview } from "../PdfPreview";
 import { downloadAttachment } from "../attachments";
 import { savePdfToGrist } from "../pdfStorage";
 import { COLUMN_MAPPING_NAMES, NO_DATA_MESSAGES, TITLE } from "./constants";
+import specificSvg from "../../../public/specific-processing.svg";
+import Image from "next/image";
 const TEMPLATE_PATH = "../templates/om.pdf";
 
 interface GristData {
@@ -35,7 +37,7 @@ const OmFillerWidget = () => {
 
   const mappingsIsReady = (mappings: WidgetColumnMap) => {
     return Object.values(COLUMN_MAPPING_NAMES).every(
-      (config) => mappings[config.name] !== undefined,
+      (config) => mappings[config.name] !== null,
     );
   };
 
@@ -307,7 +309,7 @@ const OmFillerWidget = () => {
                 console.warn(`Field ${fieldMapping} not found in PDF form`);
               }
 
-              if (field instanceof PDFTextField) {
+              if (field instanceof PDFTextField && value !== null) {
                 field.setText(String(value));
               }
             } else {
@@ -400,6 +402,26 @@ const OmFillerWidget = () => {
         <div className="error-message">
           Failed to load PDF template. Please check if the template file exists.
         </div>
+      </div>
+    );
+  }
+
+  if (!gristData?.records[0]) {
+    return (
+      <div>
+        <Title title={TITLE} />
+        <div className="centered-column">
+          <Image
+            priority
+            src={specificSvg}
+            style={{ marginBottom: "1rem" }}
+            alt="specific processing"
+          />
+          <div className="error-message">
+            <p>{NO_DATA_MESSAGES.NO_RECORDS}</p>
+          </div>
+        </div>
+        <Footer dataSource={<span>OM Filler powered by pdf-lib</span>} />
       </div>
     );
   }
