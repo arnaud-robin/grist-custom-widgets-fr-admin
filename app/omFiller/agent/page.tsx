@@ -12,7 +12,7 @@ import { PdfPreview } from "../PdfPreview";
 import { downloadAttachment } from "../attachments";
 import { savePdfToGrist } from "../pdfStorage";
 import { COLUMN_MAPPING_NAMES, NO_DATA_MESSAGES, TITLE } from "./constants";
-const TEMPLATE_PATH = "/templates/om.pdf";
+const TEMPLATE_PATH = "../templates/om.pdf";
 
 interface GristData {
   records: RowRecord[];
