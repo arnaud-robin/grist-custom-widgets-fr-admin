@@ -24,6 +24,10 @@ const AgentExpenseWidget = () => {
   const [completePdfBytes, setCompletePdfBytes] = useState<Uint8Array | null>(
     null,
   );
+  const [feedbackMessage, setFeedbackMessage] = useState<{
+    type: "success" | "error";
+    message: string;
+  } | null>(null);
 
   useGristEffect(() => {
     grist.ready({
@@ -239,7 +243,10 @@ const AgentExpenseWidget = () => {
       }
     } catch (error) {
       console.error("Error loading PDF:", error);
-      alert("Failed to load PDF. Please try again.");
+      setFeedbackMessage({
+        type: "error",
+        message: "Failed to load PDF. Please try again.",
+      });
     } finally {
       setIsProcessing(false);
     }
@@ -256,10 +263,13 @@ const AgentExpenseWidget = () => {
         COLUMN_MAPPING_NAMES.PDF_OUTPUT.name,
         "expense_filled",
       );
-      alert("PDF saved successfully!");
+      setFeedbackMessage({
+        type: "success",
+        message: "PDF saved successfully!",
+      });
     } catch (error) {
       console.error("Error saving PDF:", error);
-      alert("Failed to save PDF");
+      setFeedbackMessage({ type: "error", message: "Failed to save PDF" });
     } finally {
       setIsProcessing(false);
     }
@@ -328,13 +338,26 @@ const AgentExpenseWidget = () => {
                 bottom: 0,
               }}
             >
-              <button
-                className="primary"
-                onClick={savePdf}
-                disabled={isProcessing}
-              >
-                Save to Grist
-              </button>
+              {feedbackMessage ? (
+                <div
+                  style={{
+                    color:
+                      feedbackMessage.type === "success"
+                        ? "#4caf50"
+                        : "#f44336",
+                  }}
+                >
+                  {feedbackMessage.message}
+                </div>
+              ) : (
+                <button
+                  className="primary"
+                  onClick={savePdf}
+                  disabled={isProcessing}
+                >
+                  Save to Grist
+                </button>
+              )}
             </div>
           </>
         ) : (

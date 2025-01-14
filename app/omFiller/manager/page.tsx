@@ -20,6 +20,10 @@ const ManagerSignatureWidget = () => {
     null,
   );
   const [hasEtatFrais, setHasEtatFrais] = useState(false);
+  const [feedbackMessage, setFeedbackMessage] = useState<{
+    type: "success" | "error";
+    message: string;
+  } | null>(null);
 
   interface GristData {
     records: RowRecord[];
@@ -123,7 +127,10 @@ const ManagerSignatureWidget = () => {
       setPreviewUrl(url);
     } catch (error) {
       console.error("Error loading PDF:", error);
-      alert("Failed to load PDF. Please try again.");
+      setFeedbackMessage({
+        type: "error",
+        message: "Failed to load PDF. Please try again.",
+      });
     } finally {
       setIsProcessing(false);
     }
@@ -153,10 +160,13 @@ const ManagerSignatureWidget = () => {
         outputFieldName,
         "signed",
       );
-      alert("PDF saved successfully!");
+      setFeedbackMessage({
+        type: "success",
+        message: "PDF saved successfully!",
+      });
     } catch (error) {
       console.error("Error saving PDF:", error);
-      alert("Failed to save PDF");
+      setFeedbackMessage({ type: "error", message: "Failed to save PDF" });
     } finally {
       setIsProcessing(false);
     }
@@ -226,13 +236,26 @@ const ManagerSignatureWidget = () => {
                 bottom: 0,
               }}
             >
-              <button
-                className="primary"
-                onClick={savePdf}
-                disabled={isProcessing}
-              >
-                Save to Grist
-              </button>
+              {feedbackMessage ? (
+                <div
+                  style={{
+                    color:
+                      feedbackMessage.type === "success"
+                        ? "#4caf50"
+                        : "#f44336",
+                  }}
+                >
+                  {feedbackMessage.message}
+                </div>
+              ) : (
+                <button
+                  className="primary"
+                  onClick={savePdf}
+                  disabled={isProcessing}
+                >
+                  Save to Grist
+                </button>
+              )}
             </div>
           </>
         ) : (
