@@ -345,6 +345,7 @@ const OmFillerWidget = () => {
       });
     } finally {
       setIsProcessing(false);
+      setTimeout(() => setFeedbackMessage(null), 2000);
     }
   }, [gristData, templateBytes]);
 
@@ -383,6 +384,7 @@ const OmFillerWidget = () => {
       setFeedbackMessage({ type: "error", message: "Failed to save PDF" });
     } finally {
       setIsProcessing(false);
+      setTimeout(() => setFeedbackMessage(null), 2000);
     }
   };
 

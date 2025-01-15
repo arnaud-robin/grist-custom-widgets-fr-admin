@@ -133,6 +133,7 @@ const ManagerSignatureWidget = () => {
       });
     } finally {
       setIsProcessing(false);
+      setTimeout(() => setFeedbackMessage(null), 2000);
     }
   }, [gristData, hasEtatFrais]);
 
@@ -169,6 +170,7 @@ const ManagerSignatureWidget = () => {
       setFeedbackMessage({ type: "error", message: "Failed to save PDF" });
     } finally {
       setIsProcessing(false);
+      setTimeout(() => setFeedbackMessage(null), 2000);
     }
   };
 

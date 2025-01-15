@@ -249,6 +249,7 @@ const AgentExpenseWidget = () => {
       });
     } finally {
       setIsProcessing(false);
+      setTimeout(() => setFeedbackMessage(null), 2000);
     }
   }, [gristData]);
 
@@ -272,6 +273,7 @@ const AgentExpenseWidget = () => {
       setFeedbackMessage({ type: "error", message: "Failed to save PDF" });
     } finally {
       setIsProcessing(false);
+      setTimeout(() => setFeedbackMessage(null), 2000);
     }
   };
 
