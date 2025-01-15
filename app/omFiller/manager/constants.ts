@@ -47,7 +47,7 @@ export const COLUMN_MAPPING_NAMES = {
   },
 } as const;
 
-export const TITLE = "Générateur d'ordre de mission";
+export const TITLE = "Signature manager";
 
 export const NO_DATA_MESSAGES = {
   NO_MAPPING: "Veuillez configurer les colonnes dans les paramètres du widget.",

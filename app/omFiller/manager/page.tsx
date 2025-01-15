@@ -7,32 +7,33 @@ import { Footer } from "../../../components/Footer";
 import { useGristEffect } from "../../../lib/grist/hooks";
 import { WidgetColumnMap } from "grist/CustomSectionAPI";
 import { RowRecord } from "grist/GristData";
-import { COLUMN_MAPPING_NAMES as MANAGER_COLUMN_MAPPING } from "./constants";
+import { COLUMN_MAPPING_NAMES, NO_DATA_MESSAGES, TITLE } from "./constants";
 import { PdfPreview } from "../PdfPreview";
 import { downloadAttachment } from "../attachments";
 import { savePdfToGrist } from "../pdfStorage";
+import { Configuration } from "../../../components/Configuration";
+import Image from "next/image";
+import specificSvg from "../../../public/specific-processing.svg";
+
+interface GristData {
+  records: RowRecord[];
+  mappings: WidgetColumnMap;
+}
 
 const ManagerSignatureWidget = () => {
   const [isProcessing, setIsProcessing] = useState(false);
   const [gristData, setGristData] = useState<GristData | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
-  const [completePdfBytes, setCompletePdfBytes] = useState<Uint8Array | null>(
-    null,
-  );
+  const [completePdfBytes, setCompletePdfBytes] = useState<Uint8Array | null>(null);
   const [hasEtatFrais, setHasEtatFrais] = useState(false);
   const [feedbackMessage, setFeedbackMessage] = useState<{
     type: "success" | "error";
     message: string;
   } | null>(null);
 
-  interface GristData {
-    records: RowRecord[];
-    mappings: WidgetColumnMap;
-  }
-
   useGristEffect(() => {
     grist.ready({
-      columns: Object.values(MANAGER_COLUMN_MAPPING),
+      columns: Object.values(COLUMN_MAPPING_NAMES),
       requiredAccess: "full",
     });
 
@@ -43,7 +44,7 @@ const ManagerSignatureWidget = () => {
         const hasEF = Boolean(
           record[
             mappings[
-              MANAGER_COLUMN_MAPPING.PDF_EF_INPUT.name
+              COLUMN_MAPPING_NAMES.PDF_EF_INPUT.name
             ] as keyof typeof record
           ],
         );
@@ -53,16 +54,15 @@ const ManagerSignatureWidget = () => {
     });
   }, []);
 
-  const loadPdf = useCallback(async () => {
+  const previewFirstPage = useCallback(async () => {
     if (!gristData) {
       console.error("No Grist data available");
       return;
     }
 
-    // Use the component-level hasEtatFrais
     const inputFieldName = hasEtatFrais
-      ? MANAGER_COLUMN_MAPPING.PDF_EF_INPUT.name
-      : MANAGER_COLUMN_MAPPING.PDF_INPUT.name;
+      ? COLUMN_MAPPING_NAMES.PDF_EF_INPUT.name
+      : COLUMN_MAPPING_NAMES.PDF_INPUT.name;
 
     if (!gristData.mappings[inputFieldName]) {
       console.error(`${inputFieldName} not found in Grist data`);
@@ -71,22 +71,20 @@ const ManagerSignatureWidget = () => {
 
     try {
       setIsProcessing(true);
+      
+      // Load input PDF
       const attachmentId = Number(
         gristData.records[0][
-          gristData.mappings[
-            inputFieldName
-          ] as keyof (typeof gristData.records)[0]
+          gristData.mappings[inputFieldName] as keyof (typeof gristData.records)[0]
         ],
       );
       const pdfArrayBuffer = await downloadAttachment(attachmentId);
       const pdfBytes = new Uint8Array(pdfArrayBuffer);
-
-      // Load the PDF and add signature
       const pdfDoc = await PDFDocument.load(pdfBytes);
-      const signatureField = MANAGER_COLUMN_MAPPING.SIGNATURE.form_field;
 
+      // Add signature if available
+      const signatureField = COLUMN_MAPPING_NAMES.SIGNATURE.form_field;
       if (signatureField && gristData) {
-        // Use the component-level hasEtatFrais
         const signaturePosition = hasEtatFrais
           ? signatureField.alternate
           : signatureField.default;
@@ -95,7 +93,7 @@ const ManagerSignatureWidget = () => {
         const signatureAttachmentId = Number(
           gristData.records[0][
             gristData.mappings[
-              MANAGER_COLUMN_MAPPING.SIGNATURE.name
+              COLUMN_MAPPING_NAMES.SIGNATURE.name
             ] as keyof (typeof gristData.records)[0]
           ],
         );
@@ -115,21 +113,25 @@ const ManagerSignatureWidget = () => {
         });
       }
 
-      // Save the complete PDF with signature
-      const updatedPdfBytes = await pdfDoc.save();
-      setCompletePdfBytes(updatedPdfBytes);
+      // Save complete PDF
+      const currentPdfBytes = await pdfDoc.save();
+      setCompletePdfBytes(currentPdfBytes);
 
-      // Generate preview
-      const previewDoc = await PDFDocument.load(updatedPdfBytes);
-      const previewBytes = await createPreview(previewDoc);
+      // Create preview with first page only
+      const previewDoc = await PDFDocument.create();
+      const [firstPage] = await previewDoc.copyPages(pdfDoc, [0]);
+      previewDoc.addPage(firstPage);
+      const previewBytes = await previewDoc.save();
+      
       const blob = new Blob([previewBytes], { type: "application/pdf" });
       const url = URL.createObjectURL(blob);
       setPreviewUrl(url);
+
     } catch (error) {
-      console.error("Error loading PDF:", error);
+      console.error("Error generating preview:", error);
       setFeedbackMessage({
         type: "error",
-        message: "Failed to load PDF. Please try again.",
+        message: "Failed to generate preview",
       });
     } finally {
       setIsProcessing(false);
@@ -137,23 +139,14 @@ const ManagerSignatureWidget = () => {
     }
   }, [gristData, hasEtatFrais]);
 
-  const createPreview = async (pdfDoc: PDFDocument): Promise<Uint8Array> => {
-    const newPdfDoc = await PDFDocument.create();
-    const [firstPage] = await newPdfDoc.copyPages(pdfDoc, [0]);
-    newPdfDoc.addPage(firstPage);
-    return await newPdfDoc.save();
-  };
-
   const savePdf = async () => {
     if (!completePdfBytes || !gristData) return;
 
     try {
       setIsProcessing(true);
-
-      // Use the component-level hasEtatFrais
       const outputFieldName = hasEtatFrais
-        ? MANAGER_COLUMN_MAPPING.PDF_EF_OUTPUT.name
-        : MANAGER_COLUMN_MAPPING.PDF_OUTPUT.name;
+        ? COLUMN_MAPPING_NAMES.PDF_EF_OUTPUT.name
+        : COLUMN_MAPPING_NAMES.PDF_OUTPUT.name;
 
       await savePdfToGrist(
         completePdfBytes,
@@ -176,11 +169,10 @@ const ManagerSignatureWidget = () => {
 
   useEffect(() => {
     if (gristData) {
-      loadPdf();
+      previewFirstPage();
     }
-  }, [gristData, loadPdf]);
+  }, [gristData, previewFirstPage]);
 
-  // Cleanup URL when component unmounts or URL changes
   useEffect(() => {
     return () => {
       if (previewUrl) {
@@ -189,19 +181,39 @@ const ManagerSignatureWidget = () => {
     };
   }, [previewUrl]);
 
-  if (
-    !gristData?.records[0] ||
-    !gristData?.mappings ||
-    !gristData.mappings[MANAGER_COLUMN_MAPPING.PDF_INPUT.name]
-  ) {
+  const mappingsIsReady = (mappings: WidgetColumnMap) => {
+    return Object.values(COLUMN_MAPPING_NAMES).every(
+      (config) => mappings[config.name] !== null,
+    );
+  };
+
+  if (!gristData?.records[0]) {
     return (
       <div>
-        <Title title="Manager Signature" />
-        <div className="error-message">
-          {!gristData?.records[0]
-            ? "Please select a record to process."
-            : "PDF_INPUT mapping is missing. Please configure the widget settings."}
+        <Title title={TITLE} />
+        <div className="centered-column">
+          <Image
+            priority
+            src={specificSvg}
+            style={{ marginBottom: "1rem" }}
+            alt="single record"
+          />
+          <div className="error-message">
+            <p>{NO_DATA_MESSAGES.NO_RECORDS}</p>
+          </div>
         </div>
+        <Footer dataSource={<span>OM Filler powered by pdf-lib</span>} />
+      </div>
+    );
+  }
+
+  if (!gristData?.mappings || !mappingsIsReady(gristData.mappings)) {
+    return (
+      <div>
+        <Title title={TITLE} />
+        <Configuration>
+          <p>{NO_DATA_MESSAGES.NO_MAPPING}</p>
+        </Configuration>
         <Footer dataSource={<span>OM Filler powered by pdf-lib</span>} />
       </div>
     );
@@ -216,7 +228,7 @@ const ManagerSignatureWidget = () => {
         flexDirection: "column",
       }}
     >
-      <Title title="Manager Signature" />
+      <Title title={TITLE} />
       <div
         style={{
           padding: "0 10px",

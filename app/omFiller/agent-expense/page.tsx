@@ -7,10 +7,13 @@ import { Footer } from "../../../components/Footer";
 import { useGristEffect } from "../../../lib/grist/hooks";
 import { WidgetColumnMap } from "grist/CustomSectionAPI";
 import { RowRecord } from "grist/GristData";
-import { COLUMN_MAPPING_NAMES } from "./constants";
+import { COLUMN_MAPPING_NAMES, NO_DATA_MESSAGES, TITLE } from "./constants";
 import { PdfPreview } from "../PdfPreview";
 import { downloadAttachment } from "../attachments";
 import { savePdfToGrist } from "../pdfStorage";
+import { Configuration } from "../../../components/Configuration";
+import Image from "next/image";
+import specificSvg from "../../../public/specific-processing.svg";
 
 interface GristData {
   records: RowRecord[];
@@ -291,19 +294,39 @@ const AgentExpenseWidget = () => {
     };
   }, [previewUrl]);
 
-  if (
-    !gristData?.records[0] ||
-    !gristData?.mappings ||
-    !gristData.mappings[COLUMN_MAPPING_NAMES.PDF_INPUT.name]
-  ) {
+  const mappingsIsReady = (mappings: WidgetColumnMap) => {
+    return Object.values(COLUMN_MAPPING_NAMES).every(
+      (config) => mappings[config.name] !== null,
+    );
+  };
+
+  if (!gristData?.records[0]) {
     return (
       <div>
-        <Title title="Agent Expense Form" />
-        <div className="error-message">
-          {!gristData?.records[0]
-            ? "Please select a record to process."
-            : "PDF_INPUT mapping is missing. Please configure the widget settings."}
+        <Title title={TITLE} />
+        <div className="centered-column">
+          <Image
+            priority
+            src={specificSvg}
+            style={{ marginBottom: "1rem" }}
+            alt="single record"
+          />
+          <div className="error-message">
+            <p>{NO_DATA_MESSAGES.NO_RECORDS}</p>
+          </div>
         </div>
+        <Footer dataSource={<span>OM Filler powered by pdf-lib</span>} />
+      </div>
+    );
+  }
+
+  if (!gristData?.mappings || !mappingsIsReady(gristData.mappings)) {
+    return (
+      <div>
+        <Title title={TITLE} />
+        <Configuration>
+          <p>{NO_DATA_MESSAGES.NO_MAPPING}</p>
+        </Configuration>
         <Footer dataSource={<span>OM Filler powered by pdf-lib</span>} />
       </div>
     );
@@ -318,7 +341,7 @@ const AgentExpenseWidget = () => {
         flexDirection: "column",
       }}
     >
-      <Title title="Agent Expense Form" />
+      <Title title={TITLE} />
       <div
         style={{
           padding: "0 10px",

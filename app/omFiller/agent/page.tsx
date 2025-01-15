@@ -417,7 +417,7 @@ const OmFillerWidget = () => {
             priority
             src={specificSvg}
             style={{ marginBottom: "1rem" }}
-            alt="specific processing"
+            alt="single record"
           />
           <div className="error-message">
             <p>{NO_DATA_MESSAGES.NO_RECORDS}</p>
@@ -449,7 +449,7 @@ const OmFillerWidget = () => {
         flexDirection: "column",
       }}
     >
-      <Title title="OM Filler" />
+      <Title title={TITLE} />
       <div
         style={{
           padding: "0 10px",
