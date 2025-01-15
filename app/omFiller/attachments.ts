@@ -51,7 +51,7 @@ export const updateRecordWithAttachment = async (
 export const downloadAttachment = async (
   attachmentId: number,
 ): Promise<ArrayBuffer> => {
-  const tokenInfo = await grist.docApi.getAccessToken({ readOnly: true });
+  const tokenInfo = await grist.docApi.getAccessToken({ readOnly: false });
   const downloadUrl = `${tokenInfo.baseUrl}/attachments/${attachmentId}/download?auth=${tokenInfo.token}`;
 
   const response = await fetch(downloadUrl);
