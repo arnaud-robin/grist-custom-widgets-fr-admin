@@ -1,7 +1,6 @@
-import { addObjectInRecord } from "../../lib/grist/plugin-api";
-import { uploadAttachment } from "./attachments";
 import { WidgetColumnMap } from "grist/CustomSectionAPI";
 import { RowRecord } from "grist/GristData";
+import { uploadAttachment, updateRecordWithAttachment } from "./attachments";
 
 interface GristData {
   records: RowRecord[];
@@ -18,17 +17,26 @@ export const savePdfToGrist = async (
     throw new Error("Missing required Grist data");
   }
 
-  const fileName = `${prefix}_${new Date().toISOString()}.pdf`;
-  const blob = new Blob([pdfBytes], { type: "application/pdf" });
+  try {
+    const tableId = await grist.getTable().getTableId();
+    const recordId = gristData.records[0].id;
 
-  const attachmentId = await uploadAttachment(blob, fileName);
+    // Upload attachment
+    const fileName = `${prefix}_${new Date().toISOString()}.pdf`;
+    const blob = new Blob([pdfBytes], { type: "application/pdf" });
+    const attachmentId = await uploadAttachment(blob, fileName);
 
-  const data = {
-    [outputColumnName]: [grist.GristObjCode.List, attachmentId],
-  };
-
-  await addObjectInRecord(
-    gristData.records[0].id,
-    grist.mapColumnNamesBack(data),
-  );
+    // Update record
+    await updateRecordWithAttachment(
+      tableId,
+      recordId,
+      outputColumnName,
+      attachmentId,
+    );
+  } catch (error) {
+    console.error("Error in savePdfToGrist:", error);
+    throw new Error(
+      error instanceof Error ? error.message : "Failed to save PDF to Grist",
+    );
+  }
 };

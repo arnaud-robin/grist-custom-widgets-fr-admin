@@ -17,6 +17,37 @@ export const uploadAttachment = async (blob: Blob, filename: string) => {
   return response[0];
 };
 
+export const updateRecordWithAttachment = async (
+  tableId: string,
+  recordId: number,
+  columnName: string,
+  attachmentId: number,
+) => {
+  const tokenInfo = await grist.docApi.getAccessToken({ readOnly: false });
+  const updateUrl = `${tokenInfo.baseUrl}/tables/${tableId}/records?auth=${tokenInfo.token}`;
+
+  const response = await fetch(updateUrl, {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      records: [
+        {
+          id: recordId,
+          fields: grist.mapColumnNamesBack({
+            [columnName]: [grist.GristObjCode.List, attachmentId],
+          }),
+        },
+      ],
+    }),
+  });
+
+  if (!response.ok) {
+    throw new Error(`Failed to update record: ${response.statusText}`);
+  }
+};
+
 export const downloadAttachment = async (
   attachmentId: number,
 ): Promise<ArrayBuffer> => {
