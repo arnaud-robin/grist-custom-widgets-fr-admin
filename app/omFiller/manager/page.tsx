@@ -131,7 +131,7 @@ const ManagerSignatureWidget = () => {
       console.error("Error generating preview:", error);
       setFeedbackMessage({
         type: "error",
-        message: "Failed to generate preview",
+        message: "Échec de la génération de l'aperçu",
       });
     } finally {
       setIsProcessing(false);
@@ -156,11 +156,11 @@ const ManagerSignatureWidget = () => {
       );
       setFeedbackMessage({
         type: "success",
-        message: "PDF saved successfully!",
+        message: "PDF enregistré avec succès !",
       });
     } catch (error) {
       console.error("Error saving PDF:", error);
-      setFeedbackMessage({ type: "error", message: "Failed to save PDF" });
+      setFeedbackMessage({ type: "error", message: "Échec de l'enregistrement du PDF" });
     } finally {
       setIsProcessing(false);
       setTimeout(() => setFeedbackMessage(null), 2000);
@@ -238,7 +238,7 @@ const ManagerSignatureWidget = () => {
           minHeight: 0,
         }}
       >
-        {isProcessing && <div>Processing...</div>}
+        {isProcessing && <div>Traitement en cours...</div>}
         {previewUrl ? (
           <>
             <PdfPreview previewUrl={previewUrl} />
@@ -267,16 +267,16 @@ const ManagerSignatureWidget = () => {
                   onClick={savePdf}
                   disabled={isProcessing}
                 >
-                  Save to Grist
+                  Enregistrer dans Grist
                 </button>
               )}
             </div>
           </>
         ) : (
-          <div>Loading preview...</div>
+          <div>Chargement de l'aperçu...</div>
         )}
       </div>
-      <Footer dataSource={<span>OM Filler powered by pdf-lib</span>} />
+      <Footer dataSource={<span>OM Filler propulsé par pdf-lib</span>} />
     </div>
   );
 };

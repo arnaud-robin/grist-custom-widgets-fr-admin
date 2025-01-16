@@ -105,7 +105,7 @@ export const COLUMN_MAPPING_NAMES = {
   },
 } as const;
 
-export const TITLE = "État de frais";
+export const TITLE = "Générateur d'état de frais";
 
 export const NO_DATA_MESSAGES = {
   NO_MAPPING: "Veuillez configurer les colonnes dans les paramètres du widget.",

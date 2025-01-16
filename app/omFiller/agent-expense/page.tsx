@@ -248,7 +248,7 @@ const AgentExpenseWidget = () => {
       console.error("Error loading PDF:", error);
       setFeedbackMessage({
         type: "error",
-        message: "Failed to load PDF. Please try again.",
+        message: "Échec du chargement du PDF. Veuillez réessayer.",
       });
     } finally {
       setIsProcessing(false);
@@ -269,11 +269,11 @@ const AgentExpenseWidget = () => {
       );
       setFeedbackMessage({
         type: "success",
-        message: "PDF saved successfully!",
+        message: "PDF enregistré avec succès !",
       });
     } catch (error) {
       console.error("Error saving PDF:", error);
-      setFeedbackMessage({ type: "error", message: "Failed to save PDF" });
+      setFeedbackMessage({ type: "error", message: "Échec de l'enregistrement du PDF" });
     } finally {
       setIsProcessing(false);
       setTimeout(() => setFeedbackMessage(null), 2000);
@@ -309,13 +309,13 @@ const AgentExpenseWidget = () => {
             priority
             src={specificSvg}
             style={{ marginBottom: "1rem" }}
-            alt="single record"
+            alt="enregistrement unique"
           />
           <div className="error-message">
             <p>{NO_DATA_MESSAGES.NO_RECORDS}</p>
           </div>
         </div>
-        <Footer dataSource={<span>OM Filler powered by pdf-lib</span>} />
+        <Footer dataSource={<span>OM Filler propulsé par pdf-lib</span>} />
       </div>
     );
   }
@@ -327,7 +327,7 @@ const AgentExpenseWidget = () => {
         <Configuration>
           <p>{NO_DATA_MESSAGES.NO_MAPPING}</p>
         </Configuration>
-        <Footer dataSource={<span>OM Filler powered by pdf-lib</span>} />
+        <Footer dataSource={<span>OM Filler propulsé par pdf-lib</span>} />
       </div>
     );
   }
@@ -351,7 +351,7 @@ const AgentExpenseWidget = () => {
           minHeight: 0,
         }}
       >
-        {isProcessing && <div>Processing...</div>}
+        {isProcessing && <div>Traitement en cours...</div>}
         {previewUrl ? (
           <>
             <PdfPreview previewUrl={previewUrl} />
@@ -380,16 +380,16 @@ const AgentExpenseWidget = () => {
                   onClick={savePdf}
                   disabled={isProcessing}
                 >
-                  Save to Grist
+                  Enregistrer dans Grist
                 </button>
               )}
             </div>
           </>
         ) : (
-          <div>Loading preview...</div>
+          <div>Chargement de l'aperçu...</div>
         )}
       </div>
-      <Footer dataSource={<span>OM Filler powered by pdf-lib</span>} />
+      <Footer dataSource={<span>OM Filler propulsé par pdf-lib</span>} />
     </div>
   );
 };

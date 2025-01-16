@@ -341,7 +341,7 @@ const OmFillerWidget = () => {
       console.error("Error generating preview:", error);
       setFeedbackMessage({
         type: "error",
-        message: "Failed to generate preview",
+        message: "Échec de la génération de l'aperçu",
       });
     } finally {
       setIsProcessing(false);
@@ -377,11 +377,11 @@ const OmFillerWidget = () => {
       );
       setFeedbackMessage({
         type: "success",
-        message: "PDF saved successfully!",
+        message: "PDF enregistré avec succès!",
       });
     } catch (error) {
       console.error("Error saving PDF:", error);
-      setFeedbackMessage({ type: "error", message: "Failed to save PDF" });
+      setFeedbackMessage({ type: "error", message: "Échec de l'enregistrement du PDF" });
     } finally {
       setIsProcessing(false);
       setTimeout(() => setFeedbackMessage(null), 2000);
@@ -400,9 +400,9 @@ const OmFillerWidget = () => {
   if (currentStep === "error") {
     return (
       <div>
-        <Title title={`${TITLE} - Error`} />
+        <Title title={`${TITLE} - Erreur`} />
         <div className="error-message">
-          Failed to load PDF template. Please check if the template file exists.
+          Échec du chargement du modèle PDF. Veuillez vérifier si le fichier modèle existe.
         </div>
       </div>
     );
@@ -417,13 +417,13 @@ const OmFillerWidget = () => {
             priority
             src={specificSvg}
             style={{ marginBottom: "1rem" }}
-            alt="single record"
+            alt="enregistrement unique"
           />
           <div className="error-message">
             <p>{NO_DATA_MESSAGES.NO_RECORDS}</p>
           </div>
         </div>
-        <Footer dataSource={<span>OM Filler powered by pdf-lib</span>} />
+        <Footer dataSource={<span>OM Filler propulsé par pdf-lib</span>} />
       </div>
     );
   }
@@ -459,7 +459,7 @@ const OmFillerWidget = () => {
           minHeight: 0,
         }}
       >
-        {isProcessing && <div>Generating preview...</div>}
+        {isProcessing && <div>Génération de l'aperçu...</div>}
         {previewUrl ? (
           <>
             <PdfPreview previewUrl={previewUrl} />
@@ -488,16 +488,16 @@ const OmFillerWidget = () => {
                   onClick={savePdf}
                   disabled={isProcessing}
                 >
-                  Save to Grist
+                  Enregistrer dans Grist
                 </button>
               )}
             </div>
           </>
         ) : (
-          <div>Loading preview...</div>
+          <div>Chargement de l'aperçu...</div>
         )}
       </div>
-      <Footer dataSource={<span>OM Filler powered by pdf-lib</span>} />
+      <Footer dataSource={<span>OM Filler propulsé par pdf-lib</span>} />
     </div>
   );
 };
