@@ -381,7 +381,10 @@ const OmFillerWidget = () => {
       });
     } catch (error) {
       console.error("Error saving PDF:", error);
-      setFeedbackMessage({ type: "error", message: "Échec de l'enregistrement du PDF" });
+      setFeedbackMessage({
+        type: "error",
+        message: "Échec de l'enregistrement du PDF",
+      });
     } finally {
       setIsProcessing(false);
       setTimeout(() => setFeedbackMessage(null), 2000);
@@ -402,7 +405,8 @@ const OmFillerWidget = () => {
       <div>
         <Title title={`${TITLE} - Erreur`} />
         <div className="error-message">
-          Échec du chargement du modèle PDF. Veuillez vérifier si le fichier modèle existe.
+          Échec du chargement du modèle PDF. Veuillez vérifier si le fichier
+          modèle existe.
         </div>
       </div>
     );

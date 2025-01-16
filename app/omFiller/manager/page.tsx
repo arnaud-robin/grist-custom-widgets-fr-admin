@@ -24,7 +24,9 @@ const ManagerSignatureWidget = () => {
   const [isProcessing, setIsProcessing] = useState(false);
   const [gristData, setGristData] = useState<GristData | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
-  const [completePdfBytes, setCompletePdfBytes] = useState<Uint8Array | null>(null);
+  const [completePdfBytes, setCompletePdfBytes] = useState<Uint8Array | null>(
+    null,
+  );
   const [hasEtatFrais, setHasEtatFrais] = useState(false);
   const [feedbackMessage, setFeedbackMessage] = useState<{
     type: "success" | "error";
@@ -71,11 +73,13 @@ const ManagerSignatureWidget = () => {
 
     try {
       setIsProcessing(true);
-      
+
       // Load input PDF
       const attachmentId = Number(
         gristData.records[0][
-          gristData.mappings[inputFieldName] as keyof (typeof gristData.records)[0]
+          gristData.mappings[
+            inputFieldName
+          ] as keyof (typeof gristData.records)[0]
         ],
       );
       const pdfArrayBuffer = await downloadAttachment(attachmentId);
@@ -122,11 +126,10 @@ const ManagerSignatureWidget = () => {
       const [firstPage] = await previewDoc.copyPages(pdfDoc, [0]);
       previewDoc.addPage(firstPage);
       const previewBytes = await previewDoc.save();
-      
+
       const blob = new Blob([previewBytes], { type: "application/pdf" });
       const url = URL.createObjectURL(blob);
       setPreviewUrl(url);
-
     } catch (error) {
       console.error("Error generating preview:", error);
       setFeedbackMessage({
@@ -160,7 +163,10 @@ const ManagerSignatureWidget = () => {
       });
     } catch (error) {
       console.error("Error saving PDF:", error);
-      setFeedbackMessage({ type: "error", message: "Échec de l'enregistrement du PDF" });
+      setFeedbackMessage({
+        type: "error",
+        message: "Échec de l'enregistrement du PDF",
+      });
     } finally {
       setIsProcessing(false);
       setTimeout(() => setFeedbackMessage(null), 2000);

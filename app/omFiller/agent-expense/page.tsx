@@ -273,7 +273,10 @@ const AgentExpenseWidget = () => {
       });
     } catch (error) {
       console.error("Error saving PDF:", error);
-      setFeedbackMessage({ type: "error", message: "Échec de l'enregistrement du PDF" });
+      setFeedbackMessage({
+        type: "error",
+        message: "Échec de l'enregistrement du PDF",
+      });
     } finally {
       setIsProcessing(false);
       setTimeout(() => setFeedbackMessage(null), 2000);
