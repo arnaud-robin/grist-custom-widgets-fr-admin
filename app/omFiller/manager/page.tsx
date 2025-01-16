@@ -14,6 +14,7 @@ import { savePdfToGrist } from "../pdfStorage";
 import { Configuration } from "../../../components/Configuration";
 import Image from "next/image";
 import specificSvg from "../../../public/specific-processing.svg";
+import configurationSvg from "../../../public/configuration.svg";
 
 interface GristData {
   records: RowRecord[];
@@ -32,6 +33,7 @@ const ManagerSignatureWidget = () => {
     type: "success" | "error";
     message: string;
   } | null>(null);
+  const [hasSignature, setHasSignature] = useState(true);
 
   useGristEffect(() => {
     grist.ready({
@@ -51,6 +53,20 @@ const ManagerSignatureWidget = () => {
           ],
         );
         setHasEtatFrais(hasEF);
+
+        // Check if signature exists
+        const signatureValue =
+          record[
+            mappings[COLUMN_MAPPING_NAMES.SIGNATURE.name] as keyof typeof record
+          ];
+        setHasSignature(
+          Boolean(
+            signatureValue &&
+              Array.isArray(signatureValue) &&
+              signatureValue.length > 0,
+          ),
+        );
+
         setGristData({ records: [record], mappings });
       }
     });
@@ -174,10 +190,10 @@ const ManagerSignatureWidget = () => {
   };
 
   useEffect(() => {
-    if (gristData) {
+    if (gristData && hasSignature) {
       previewFirstPage();
     }
-  }, [gristData, previewFirstPage]);
+  }, [gristData, previewFirstPage, hasSignature]);
 
   useEffect(() => {
     return () => {
@@ -220,6 +236,19 @@ const ManagerSignatureWidget = () => {
         <Configuration>
           <p>{NO_DATA_MESSAGES.NO_MAPPING}</p>
         </Configuration>
+        <Footer dataSource={<span>OM Filler powered by pdf-lib</span>} />
+      </div>
+    );
+  }
+
+  if (!hasSignature) {
+    return (
+      <div>
+        <Title title={TITLE} />
+        <div className="centered-column">
+          <Image priority src={configurationSvg} alt="Configuration" />
+          <p>{NO_DATA_MESSAGES.NO_SIGNATURE}</p>
+        </div>
         <Footer dataSource={<span>OM Filler powered by pdf-lib</span>} />
       </div>
     );

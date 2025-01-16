@@ -52,4 +52,6 @@ export const TITLE = "Signature manager";
 export const NO_DATA_MESSAGES = {
   NO_MAPPING: "Veuillez configurer les colonnes dans les paramètres du widget.",
   NO_RECORDS: "Veuillez sélectionner une ligne à traiter.",
-};
+  NO_SIGNATURE:
+    "Veuillez configurer votre signature dans la table Personnes avant de pouvoir signer des documents.",
+} as const;
